@@ -15,6 +15,10 @@ class ACPTTNMonitor:
         self.start_gateway_monitor()
         # self.start_sensor_monitor()
 
+    ###################################
+    #         MQTT Block              #
+    ###################################
+
     def connect_mqtt(self):
         self.client.on_connect = self.on_connect
         self.client.on_disconnect = self.on_disconnect
@@ -54,19 +58,20 @@ class ACPTTNMonitor:
         print("\n{} Message published {}".format(
             self.ts_string(), mid))
 
+    
+    # Monitor Gateways
+
     def start_gateway_monitor(self):
 
         while True:
             gateway_status = {'total':0, 'connected':0, 'disconnected':0, 'gateways': {}}
 
-            # all_gateway_response = requests.get('https://eu1.cloud.thethings.network/api/v3/users/cambridgesensornetwork/gateways', headers= self.headers)
             all_gateway_response = requests.get(self.settings['gateway_url'].format(self.settings['user_id']), headers= self.headers)
 
             disconnected, connected = 0, 0
 
             for gateway in all_gateway_response.json()['gateways']:
                 gateway_id = gateway['ids']['gateway_id']
-                # status_response = requests.get('https://eu1.cloud.thethings.network/api/v3/gs/gateways/{}/connection/stats'.format(gateway_id), headers= self.headers)
                 status_response = requests.get(self.settings['gateway_status_url'].format(gateway_id), headers= self.headers)
                 
                 if 'code' in list(status_response.json().keys()):
@@ -75,8 +80,7 @@ class ACPTTNMonitor:
                             {
                                 gateway_id: {
                                     'gateway_id': gateway_id, 
-                                    'gateway_status': 'disconnected', 
-                                    'gateway_details': gateway, 
+                                    'gateway_status': 'disconnected',
                                     'gateway_status_message': ''}
                             }
                         )
@@ -86,9 +90,8 @@ class ACPTTNMonitor:
                             {
                                 gateway_id: {
                                     'gateway_id': gateway_id, 
-                                    'gateway_status': 'connected', 
-                                    'gateway_details': gateway, 
-                                    'gateway_status_message': status_response.json()}
+                                    'gateway_status': 'connected',
+                                    'gateway_status_message': status_response.json()['last_uplink_received_at']}
                             }
                         )
 
@@ -97,11 +100,11 @@ class ACPTTNMonitor:
             gateway_status['total'] = connected + disconnected
 
             monitor_message = {
-                'acp_id': self.settings['acp_id'],
+                'acp_ts': str(time()),
+                'acp_id': self.settings['gateway_acp_id'],
                 'acp_type': self.settings['acp_type_id'],
                 'payload_cooked': gateway_status
             }
             print(monitor_message['acp_id'])
-            self.client.publish(self.settings['mqtt_topic']+'/gateway', json.dumps(monitor_message), qos=0)
-            sleep(30)
-            # break
+            self.client.publish(self.settings['gateway_topic'], json.dumps(monitor_message), qos=0)
+            sleep(10)
