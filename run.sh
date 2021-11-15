@@ -1,12 +1,14 @@
-#!/usr/bin/env python3
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-from monitors.ttngateway import *
-import json
+cd $SCRIPT_DIR
+pid=$(pgrep -f "python3 start_monitors.py")
+if [ $? -eq 0 ]
+then
+    echo $(date '+%s') start_monitors.py already running as PID $pid
+    exit 1
+else
+    echo $(date '+%s') starting monitors
+    nohup python3 start_monitors.py >/var/log/acp_prod/acp_monitors.log 2>/var/log/acp_prod/acp_monitors.err </dev/null & disown
+    exit 0
+fi
 
-with open('secrets/settings.json', 'r') as settings_file:
-    settings_data = settings_file.read()
-
-    # parse file
-settings = json.loads(settings_data)
-
-ttnmonitor = TTNGateway(settings)
