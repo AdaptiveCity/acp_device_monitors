@@ -143,7 +143,7 @@ class TTNGateway:
                 }
                 print('Event Message:', monitor_event_message)
                 self.client.publish(self.settings['gateway_topic'], json.dumps(monitor_event_message), qos=0)
-            elif timer%300 == 0:
+            elif timer%self.settings['update_interval'] == 0:
                 gateway_status['connected'] = connected
                 gateway_status['disconnected'] = disconnected
                 gateway_status['total'] = connected + disconnected
@@ -157,6 +157,5 @@ class TTNGateway:
                 print('Periodic Message:', monitor_event_message)
                 self.client.publish(self.settings['gateway_topic'], json.dumps(monitor_event_message), qos=0)
 
-            sleep(10)
-            timer+=10
-            print(timer)
+            sleep(self.settings['query_interval'])
+            timer+=self.settings['query_interval']
