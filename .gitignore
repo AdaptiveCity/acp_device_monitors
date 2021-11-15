@@ -11,3 +11,4 @@ venv/
 ENV/
 
 secrets
+ttn_monitor.py
