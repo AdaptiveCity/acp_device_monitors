@@ -1,7 +1,6 @@
 import json
 from json.decoder import JSONDecodeError
 import requests
-import sys
 from time import sleep, time
 from classes.mqttclient import MQTTClient
 from classes.util import get_time_since_epoch
