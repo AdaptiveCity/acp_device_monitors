@@ -131,7 +131,7 @@ class TTNGateway:
                 }
                 print('Event Message:', monitor_event_message)
                 self.client.publish(self.settings['gateway_topic'], json.dumps(monitor_event_message), qos=0)
-            elif timer%300 == 0:
+            elif timer%120 == 0:
                 gateway_status['connected'] = connected
                 gateway_status['disconnected'] = disconnected
                 gateway_status['total'] = connected + disconnected
