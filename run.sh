@@ -11,4 +11,3 @@ else
     nohup python3 start_monitors.py >/var/log/acp_prod/acp_monitors.log 2>/var/log/acp_prod/acp_monitors.err </dev/null & disown
     exit 0
 fi
-
