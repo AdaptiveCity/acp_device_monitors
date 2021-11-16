@@ -18,7 +18,7 @@ class MQTTClient:
 
         self.client.username_pw_set(self.user, password= self.password)
 
-        self.client.connect(self.host, self.port, keepalive=300)
+        self.client.connect(self.host, self.port, keepalive=600)
 
     def ts_string(self):
         return '{:.6f}'.format(time())
