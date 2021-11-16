@@ -49,7 +49,7 @@ class TTNGateway:
         while True:
             event_flag = False
             gateway_status = {'total':0, 'connected':0, 'disconnected':0, 'gateways': {}}
-            event = {'up':[], 'down':[]}
+            event = {'up':[], 'down':[], 'new':[]}
 
             all_gateway_response = requests.get(self.settings['gateway_url'].format(self.settings['user_id']), headers= self.headers)
 
@@ -58,8 +58,47 @@ class TTNGateway:
             try:
 
                 for gateway in all_gateway_response.json()['gateways']:
-                    gateway_id = gateway['ids']['gateway_id']
+                    gateway_id = gateway['ids']['gateway_id']                    
+
                     status_response = requests.get(self.settings['gateway_status_url'].format(gateway_id), headers= self.headers)
+
+                    if gateway_id not in list(self.gateways.keys()):
+                        event['new'].append(gateway_id)
+                        event_flag = True
+                        if 'code' in list(status_response.json().keys()):
+                            self.gateways.update(
+                                {
+                                    gateway_id: {
+                                        'status': 'disconnected'
+                                    }
+                                }
+                            )
+                            gateway_status['gateways'].update(
+                                {
+                                    gateway_id: {
+                                        'gateway_id': gateway_id, 
+                                        'gateway_status': 'disconnected',
+                                        'gateway_status_message': ''}
+                                }
+                            )
+                            disconnected+=1
+                        else:
+                            self.gateways.update(
+                                {
+                                    gateway_id: {
+                                        'status': 'connected'
+                                    }
+                                }
+                            )
+                            gateway_status['gateways'].update(
+                                {
+                                    gateway_id: {
+                                        'gateway_id': gateway_id, 
+                                        'gateway_status': 'connected',
+                                        'gateway_status_message': str(time())}
+                                }
+                            )
+                            connected+=1
                     
                     if 'code' in list(status_response.json().keys()):
                         disconnected+=1
@@ -122,6 +161,10 @@ class TTNGateway:
                         'down': {
                             'acp_event_type': 'down',
                             'acp_event_value': event['down']
+                        },
+                        'new': {
+                            'acp_event_type': 'new',
+                            'acp_event_value': event['new']
                         }
                     }
 
