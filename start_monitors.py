@@ -1,4 +1,4 @@
-from monitors.ttngateway import *
+from monitors.ttng import *
 import json
 
 with open('secrets/settings.json', 'r') as settings_file:
@@ -7,4 +7,4 @@ with open('secrets/settings.json', 'r') as settings_file:
     # parse file
 settings = json.loads(settings_data)
 
-ttnmonitor = TTNGateway(settings)
+ttnmonitor = TTNG(settings)

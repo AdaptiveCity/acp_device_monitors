@@ -6,7 +6,7 @@ from time import sleep, time
 from classes.mqttclient import MQTTClient
 from classes.util import get_time_since_epoch
 
-class TTNGateway:
+class TTNG:
     def __init__(self, settings):
         self.settings = settings
         self.headers = {'Authorization': settings['api_key'], "grant_type": "authorization_code"}
