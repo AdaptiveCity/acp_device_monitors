@@ -117,7 +117,10 @@ class TTNG:
                             )
                         self.gateways[gateway_id]['status'] = 'disconnected'
                     else:
-                        last_mesage_time = get_time_since_epoch(status_response.json()['last_uplink_received_at'])
+                        try:
+                            last_mesage_time = get_time_since_epoch(status_response.json()['last_uplink_received_at'])
+                        except KeyError:
+                            last_mesage_time = time()
                         if time() - last_mesage_time < self.settings['gateway_update_threshold']:
                             if self.gateways[gateway_id]['status'] == 'disconnected':
                                 event['up'].append(gateway_id)
