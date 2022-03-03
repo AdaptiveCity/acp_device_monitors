@@ -15,11 +15,14 @@ class TTNG:
 
         self.start_gateway_monitor()
 
-    
+
     def initialize_gateway_status(self):
         gateways = {}
 
-        all_gateway_response = requests.get(self.settings['gateway_url'].format(self.settings['user_id']), headers= self.headers)
+        try:
+            all_gateway_response = requests.get(self.settings['gateway_url'].format(self.settings['user_id']), headers= self.headers)
+        except ConnectionError:
+            return gateways
 
         for gateway in all_gateway_response.json()['gateways']:
                 gateway_id = gateway['ids']['gateway_id']
@@ -58,7 +61,7 @@ class TTNG:
             try:
 
                 for gateway in all_gateway_response.json()['gateways']:
-                    gateway_id = gateway['ids']['gateway_id']                    
+                    gateway_id = gateway['ids']['gateway_id']
 
                     status_response = requests.get(self.settings['gateway_status_url'].format(gateway_id), headers= self.headers)
 
@@ -76,7 +79,7 @@ class TTNG:
                             gateway_status['gateways'].update(
                                 {
                                     gateway_id: {
-                                        'gateway_id': gateway_id, 
+                                        'gateway_id': gateway_id,
                                         'gateway_status': 'disconnected',
                                         'gateway_status_message': ''}
                                 }
@@ -93,13 +96,13 @@ class TTNG:
                             gateway_status['gateways'].update(
                                 {
                                     gateway_id: {
-                                        'gateway_id': gateway_id, 
+                                        'gateway_id': gateway_id,
                                         'gateway_status': 'connected',
                                         'gateway_status_message': str(time())}
                                 }
                             )
                             connected+=1
-                    
+
                     if 'code' in list(status_response.json().keys()):
                         disconnected+=1
 
@@ -110,7 +113,7 @@ class TTNG:
                         gateway_status['gateways'].update(
                                 {
                                     gateway_id: {
-                                        'gateway_id': gateway_id, 
+                                        'gateway_id': gateway_id,
                                         'gateway_status': 'disconnected',
                                         'gateway_status_message': ''}
                                 }
@@ -129,7 +132,7 @@ class TTNG:
                             gateway_status['gateways'].update(
                                     {
                                         gateway_id: {
-                                            'gateway_id': gateway_id, 
+                                            'gateway_id': gateway_id,
                                             'gateway_status': 'connected',
                                             'gateway_status_message': last_mesage_time
                                         }
@@ -145,7 +148,7 @@ class TTNG:
                             gateway_status['gateways'].update(
                                     {
                                         gateway_id: {
-                                            'gateway_id': gateway_id, 
+                                            'gateway_id': gateway_id,
                                             'gateway_status': 'disconnected',
                                             'gateway_status_message': last_mesage_time
                                         }
